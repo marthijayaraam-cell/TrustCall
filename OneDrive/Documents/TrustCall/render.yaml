@@ -1,0 +1,15 @@
+# Render Infrastructure Blueprint for TrustCall Backend
+services:
+  - type: web
+    name: trustcall-backend
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: free
+    region: singapore
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
