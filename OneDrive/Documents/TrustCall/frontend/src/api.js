@@ -38,7 +38,7 @@ export async function scoreTranscript(transcript, callId = null, userId = 'user_
       throw new Error("Scoring request timed out after 15 seconds. Please check backend terminal.");
     }
     if (err.message && !err.message.startsWith("Scoring request") && !err.message.startsWith("Server error")) {
-      throw new Error("Failed to connect to TrustCall backend engine. Please ensure 'python start.py' is running in Terminal 1.");
+      throw new Error(`${err.message} (Target URL: ${API_BASE_URL})`);
     }
     throw err;
   }
@@ -74,7 +74,7 @@ export async function scoreAudio(audioFile, callId = null, transcript = '', user
       throw new Error("Audio processing request timed out after 120 seconds. Please check backend logs.");
     }
     if (err.message && !err.message.startsWith("Audio processing") && !err.message.startsWith("Could not") && !err.message.startsWith("Server error")) {
-      throw new Error(err.message || "Failed to connect to TrustCall backend engine. Please ensure 'python start.py' is running in Terminal 1.");
+      throw new Error(`${err.message} (Target URL: ${API_BASE_URL})`);
     }
     throw err;
   }
