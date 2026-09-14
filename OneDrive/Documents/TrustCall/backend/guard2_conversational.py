@@ -101,7 +101,26 @@ def transcribe_audio_whisper(file_path: str) -> str:
         import numpy as np
         print(f"📊 [Audio Signal Stats] Samples: {len(samples)}, SR: {sr}Hz, Amplitude StdDev: {np.std(samples):.4f}")
 
-    # 1. Try HuggingFace Whisper Pipeline
+    # 1. Fast Cloud SpeechRecognition STT (Google Speech API - ~1s response time)
+    try:
+        import speech_recognition as sr_lib
+        r = sr_lib.Recognizer()
+        r.operation_timeout = 5
+        with sr_lib.AudioFile(file_path) as source:
+            audio_data = r.record(source)
+            for lang in ["en-US", "hi-IN", "te-IN", "ta-IN"]:
+                try:
+                    transcribed_text = r.recognize_google(audio_data, language=lang)
+                    if transcribed_text and transcribed_text.strip():
+                        print(f"✅ [FAST SPEECH RECOGNITION STT ({lang}) TEXT]: \"{transcribed_text}\"")
+                        print("==================================================\n")
+                        return transcribed_text.strip()
+                except Exception:
+                    pass
+    except Exception as err:
+        print(f"⚠️ [Fast SpeechRecognition Notice]: {err}")
+
+    # 2. Fallback to HuggingFace Whisper Pipeline
     if _WHISPER_PIPELINE is None:
         try:
             from transformers import pipeline
@@ -137,26 +156,6 @@ def transcribe_audio_whisper(file_path: str) -> str:
                     return transcribed_text
             except Exception as e:
                 print(f"⚠️ [Whisper STT Raw Array Notice]: {e}")
-
-    # 2. Try SpeechRecognition (Google Speech API)
-    try:
-        import speech_recognition as sr_lib
-        r = sr_lib.Recognizer()
-        r.operation_timeout = 4
-        with sr_lib.AudioFile(file_path) as source:
-            audio_data = r.record(source)
-            for lang in ["en-US", "te-IN", "hi-IN"]:
-                try:
-                    transcribed_text = r.recognize_google(audio_data, language=lang)
-                    print(f"🔍 [SpeechRecognition Google ({lang}) Result]: \"{transcribed_text}\"")
-                    if transcribed_text and transcribed_text.strip():
-                        print(f"✅ [SPEECH RECOGNITION STT ({lang}) TEXT]: \"{transcribed_text}\"")
-                        print("==================================================\n")
-                        return transcribed_text.strip()
-                except Exception:
-                    pass
-    except Exception as err:
-        print(f"⚠️ [SpeechRecognition Notice]: {err}")
 
     # 3. Try openai-whisper library if installed
     try:
