@@ -14,6 +14,12 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Low-memory environment variables for PyTorch / OpenBLAS
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
+ENV PYTHONUNBUFFERED=1
+
 # Copy backend codebase
 COPY . .
 

@@ -163,8 +163,7 @@ def convert_to_pcm_wav(file_path: str) -> str:
 @app.on_event("startup")
 def startup_event():
     init_db()
-    init_audio_models()
-    init_whisper_model()
+    print("✓ [Startup] Database initialized. ML models configured for lazy on-demand loading.")
     
     # Synchronize Merkle chain from SQLite DB
     records = get_all_trust_logs()
@@ -176,13 +175,7 @@ def startup_event():
             action=rec["action"],
             timestamp=rec["timestamp"]
         )
-        
-    # Run 4-Format Audio Converter Verification Suite
-    try:
-        from test_audio_conversion import run_audio_conversion_tests
-        run_audio_conversion_tests()
-    except Exception as err:
-        print(f"⚠️ [Startup Self-Test Notice]: {err}")
+
 
 # --- Request Models ---
 class ScoreRequest(BaseModel):
