@@ -1,6 +1,10 @@
 const hostname = (typeof window !== 'undefined' && window.location.hostname) ? window.location.hostname : '127.0.0.1';
 const defaultLocalUrl = `http://${hostname}:8000`;
-const API_BASE_URL = (import.meta.env && import.meta.env.VITE_API_BASE_URL) ? import.meta.env.VITE_API_BASE_URL : defaultLocalUrl;
+let rawBaseUrl = (import.meta.env && import.meta.env.VITE_API_BASE_URL) ? import.meta.env.VITE_API_BASE_URL : defaultLocalUrl;
+if (rawBaseUrl.endsWith('/')) {
+  rawBaseUrl = rawBaseUrl.slice(0, -1);
+}
+const API_BASE_URL = rawBaseUrl;
 
 export async function scoreTranscript(transcript, callId = null, userId = 'user_default', phase1Mock = false) {
   const controller = new AbortController();
